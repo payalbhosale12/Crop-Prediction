@@ -1,9 +1,12 @@
 import streamlit as st
 import pickle
+import os
 import numpy as np
 
 # Load trained model
-model = pickle.load(open('rf_model.pkl', 'rb'))
+
+model_path = os.path.join(os.path.dirname(__file__), "rf_model.pkl")
+model = pickle.load(open(model_path, "rb"))
 
 # Title
 st.set_page_config(page_title="Crop Prediction", layout="centered")
@@ -26,11 +29,19 @@ with col2:
 
 # Prediction
 if st.button("Predict Crop"):
-    try:
-        features = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
-        prediction = model.predict(features)
+    
+    # Check if all inputs are entered properly
+    if (N == 0 or P == 0 or K == 0 or temperature == 0 or 
+        humidity == 0 or ph == 0 or rainfall == 0):
+        
+        st.warning("⚠️ Please fill all the input fields with valid values!")
+    
+    else:
+        try:
+            features = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
+            prediction = model.predict(features)
 
-        st.success(f"🌾 Recommended Crop: {prediction[0]}")
+            st.success(f"🌾 Recommended Crop: {prediction[0]}")
 
-    except Exception as e:
-        st.error(f"Error: {e}")
+        except Exception as e:
+            st.error(f"Error: {e}")
